@@ -2,8 +2,12 @@ from fastapi import FastAPI,WebSocket,WebSocketDisconnect
 from routes import router
 from websocket_manager import manager
 import json
+from database import Base, engine
+import models
 
-app=FastAPI()
+app = FastAPI()
+
+Base.metadata.create_all(bind=engine)
 
 app.include_router(router)
 
