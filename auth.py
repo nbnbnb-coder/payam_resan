@@ -5,13 +5,15 @@ import os
 
 SECRET = os.getenv("SECRET_KEY")
 
-pwd=CryptContext(schemes=["bcrypt"])
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def hash_password(p):
-    return pwd.hash(p)
+def hash_password(password: str):
+    password_hash = hashlib.sha256(password.encode()).hexdigest()
+    return pwd_context.hash(password_hash)
 
-def verify_password(p,h):
-    return pwd.verify(p,h)
+def verify_password(plain_password: str, hashed_password: str):
+    password_hash = hashlib.sha256(plain_password.encode()).hexdigest()
+    return pwd_context.verify(password_hash, hashed_password)
 
 def create_token(data):
     payload=data.copy()
