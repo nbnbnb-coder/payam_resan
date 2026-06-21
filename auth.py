@@ -1,4 +1,5 @@
 from passlib.context import CryptContext
+import hashlib
 from jose import jwt
 from datetime import datetime,timedelta
 import os
