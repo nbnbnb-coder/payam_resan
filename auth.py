@@ -1,22 +1,32 @@
-from passlib.context import CryptContext
-import hashlib
-from jose import jwt
-from datetime import datetime,timedelta
 import os
+from datetime import datetime, timedelta
 
-SECRET = os.getenv("SECRET_KEY")
+from jose import jwt
+from passlib.context import CryptContext
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def hash_password(password: str):
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
-    return pwd_context.hash(password_hash)
+SECRET_KEY = os.getenv("SECRET_KEY", "CHANGE_ME")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_DAYS = 7
 
-def verify_password(plain_password: str, hashed_password: str):
-    password_hash = hashlib.sha256(plain_password.encode()).hexdigest()
-    return pwd_context.verify(password_hash, hashed_password)
+pwd_context = CryptContext(
+    schemes=["bcrypt_sha256"],
+    deprecated="auto"
+)
 
-def create_token(data):
-    payload=data.copy()
-    payload["exp"]=datetime.utcnow()+timedelta(days=1)
-    return jwt.encode(payload,SECRET,"HS256")
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def create_token(data: dict) -> str:
+    to_encode = data.copy()
+
+    expire = datetime.utcnow() + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
+    to_encode.update({"exp": expire})
+
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
